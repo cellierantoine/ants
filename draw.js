@@ -8,10 +8,10 @@ canvas.height = 800 //height;
 
 canvas.addEventListener("click", click);
 
-var mob1 = new Mob(100,100);
-var mob2 = new Mob(200,200);
-var mob3 = new Mob(300,300);
-var mob4 = new Mob(400,400);
+var mob1 = new Mob(400,400);
+
+
+var obstacle1 = new Obstacle(499,499,102,102);
 
 
 function draw() {
@@ -19,12 +19,11 @@ function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   mob1.act();
-  mob2.act();
-  mob3.act();
-  mob4.act();
 
+  drawObstacle(ctx);
   drawRessources(ctx);
   drawMob(ctx);
+  
 
   window.requestAnimationFrame(draw);
 }
@@ -34,6 +33,15 @@ function drawRessources(ctx){
     ressource = Ressource.ressourceList[i];
     ctx.fillStyle = "red";
     ctx.fillRect(ressource.x-3, ressource.y-3, 6, 6);
+  }
+  ctx.save();
+}
+
+function drawObstacle(ctx){
+  for(let i = 0; i < Obstacle.obstacleList.length; i++){
+    obstacle = Obstacle.obstacleList[i];
+    ctx.fillStyle = "brown";
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.dx, obstacle.dy);
   }
   ctx.save();
 }

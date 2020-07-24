@@ -91,8 +91,9 @@
 
 
     class AStar{
-        static step = 10;
+        static step = 5;
         static pointsInd = [[-1, -1], [-1, 0], [-1, +1], [+1, -1], [+1, 0], [+1, +1], [0, -1], [0, +1]]; 
+        //static pointsInd = [[-1, 0], [+1, 0], [0, -1], [0, +1]]; 
 
         constructor(x, y, destX, destY){
             this.x = x;
@@ -109,31 +110,40 @@
             this.AStarPointList = [];
             this.trajectory = [[this.destX, this.destY]];
 
-            this.AStarPointList[x] = [];
+            this.AStarPointList[this.indX] = [];
             let aStarPoint = new AStarPoint(this.indX, this.indY, 0, 0, [this.indX, this.indY]);
-            this.AStarPointList[x][y] = aStarPoint;
+            this.AStarPointList[this.indX][this.indY] = aStarPoint;
             this.heap.add(aStarPoint);
         }
+
 
         addPoints(x = this.indX, y = this.indY){
             if(x == this.indDestX && y == this.indDestY){
                 return this.createTrajectory(this.indDestX, this.indDestY);
             }
 
+
             for(let i of AStar.pointsInd){
-                let pointX = x + i[0] * AStar.step;
-                let pointY = y + i[1] * AStar.step;
-                let distBegin = distance(this.indX, this.indY, pointX, pointY);
-                let distEnd = distance(this.indDestX, this.indDestY, pointX, pointY);
+                let indPointX = x + i[0];
+                let indPointY = y + i[1];
+                let pointX = indPointX * AStar.step;
+                let pointY = indPointY * AStar.step;
+                
+                let distBegin = distance(this.indX, this.indY, indPointX, indPointY);
+                let distEnd = distance(this.indDestX, this.indDestY, indPointX, indPointY);
 
                 
-                if(this.AStarPointList[pointX] == undefined){
-                    this.AStarPointList[pointX] = [];
+                if(this.AStarPointList[indPointX] == undefined){
+                    this.AStarPointList[indPointX] = [];
                 }
-                if(this.AStarPointList[pointX][pointY] == undefined){
-                    let aStarPoint = new AStarPoint(pointX, pointY, distBegin, distEnd, [x, y]);
-                    this.AStarPointList[pointX][pointY] = aStarPoint;
-                    this.heap.add(aStarPoint);
+                if(this.AStarPointList[indPointX][indPointY ] == undefined){
+                    if(Obstacle.collide(pointX, pointY)){
+                        this.AStarPointList[indPointX][indPointY] = 1;
+                    }else{
+                        let aStarPoint = new AStarPoint(indPointX, indPointY, distBegin, distEnd, [x, y]);
+                        this.AStarPointList[indPointX][indPointY] = aStarPoint;
+                        this.heap.add(aStarPoint);
+                    }
                 } 
             }
 
@@ -143,22 +153,19 @@
         }
 
         createTrajectory(x, y){
+            let tx;
+            let ty;
             while(!(x == this.indX && y == this.indY)){
                 this.trajectory.unshift([x * AStar.step, y * AStar.step]);
-                x = this.AStarPointList[x][y].parent[0];
-                y = this.AStarPointList[x][y].parent[1];
+
+                tx = this.AStarPointList[x][y].parent[0];
+                ty = this.AStarPointList[x][y].parent[1];
+
+                x = tx; 
+                y = ty;
             }
             this.trajectory.unshift([x * AStar.step, y * AStar.step]);
             return this.trajectory;
         }
 
     }
-
-
-    // A SUPPRIMER
-    function distance(x1, y1, x2, y2){
-        return Math.pow(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2), 0.5)
-    }
-
-    let a = new AStar(101, 107, 808, 403);
-    // TODO TODO TODO @TODO
